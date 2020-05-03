@@ -1,11 +1,11 @@
 <template>
 	<div class="drag_verify" :style="dragVerifyStyle" @mousemove="dragMoving" @mouseup="dragFinish" @touchmove="dragMoving" @touchend="dragFinish">
-			
+
 			<div class="dv_progress_bar" ref="progressBar" :style="progressBarStyle">
-				
+
 			</div>
 			<div class="dv_text" :style="textStyle" ref="message">{{message}}</div>
-			
+
 			<div class="dv_handler dv_handler_bg" @mousedown="dragStart"  ref="handler" :style="handlerStyle" @touchstart="dragStart">
 				<i :class="handlerIcon"></i>
 			</div>
@@ -118,15 +118,28 @@
 	},
 	methods:{
 		init: function(){
-			
+
 		},
 		dragStart: function(e){
+		  const _thiz = this;
 			if(!this.isPassing) {
 				this.isMoving = true;
 				var handler = this.$refs.handler;
 				this.x = (e.pageX||e.touches[0].pageX) - parseInt(handler.style.left.replace('px',''), 10);
 			}
-			
+      document.onmousemove = (ev) => {
+			  let el = ev || event;
+        _thiz.dragMoving(el);
+			  return false;
+      };
+      document.onmouseup = (ev) => {
+        let el = ev || event;
+        _thiz.dragFinish(el);
+        document.onmousemove = null;
+        return false;
+      };
+			e.preventDefault();
+			e.stopPropagation();
 		},
 		dragMoving: function(e){
             if(this.isMoving && !this.isPassing){
@@ -135,7 +148,7 @@
                 if(_x > 0 && _x <= (this.width-this.height)){
                     handler.style.left = _x + 'px';
                     this.$refs.progressBar.style.width = (_x+this.height/2)+'px';
-                }else if(_x > (this.width-this.height)){  
+                }else if(_x > (this.width-this.height)){
                 	handler.style.left = (this.width - this.height)+ 'px';
                     this.$refs.progressBar.style.width = (this.width-this.height/2)+'px';
                      this.passVerify();
@@ -152,7 +165,7 @@
 				}
 				this.isMoving = false;
 			}
-			
+
 		},
 		passVerify: function(){
            	this.isPassing = true;
@@ -168,7 +181,7 @@
 	}
 </script>
 <style>
-	.drag_verify{ 
+	.drag_verify{
         position: relative;
         background-color: #e8e8e8;
         text-align: center;
